@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+google-api-python-client = "*"
+requests = "*"
+dotenv = "*"
+pytube2 = "*"
+python-ffmpeg = "*"
+mutagen = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
