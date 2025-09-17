@@ -10,6 +10,7 @@ dotenv = "*"
 pytube2 = "*"
 python-ffmpeg = "*"
 mutagen = "*"
+spotifyscraper = "*"
 
 [dev-packages]
 

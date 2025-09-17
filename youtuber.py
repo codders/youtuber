@@ -22,17 +22,6 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 TARGET_FOLDER = os.environ.get('TARGET_FOLDER')
 
-def get_listenbrainz_playlist_tracks(playlist_id):
-    url = f"https://api.listenbrainz.org/1/playlist/{playlist_id}"
-    resp = requests.get(url)
-    resp.raise_for_status()
-    data = resp.json()
-    # Adjust this according to the actual ListenBrainz API structure
-    return [
-        {'artist': t['creator'], 'title': t['title'], 'mbid': t['identifier'][0].split('/')[-1]}
-        for t in data['playlist']['track']
-    ]
-
 def youtube_search(youtube, query):
     request = youtube.search().list(
         q=query,
@@ -84,11 +73,10 @@ def convert_to_mp3(input, target):
     except Exception as e:
         print(f"Unable to convert video to mp3 for '{input}'")
 
-def tag_mp3(filename, artist, title, mbid):
+def tag_mp3(filename, artist, title, release_year):
     audio = ID3(filename)
     if len(audio.getall("TIT2")) > 0:
         return
-    release_year = get_release_year(mbid)
     audio.add(TIT2(encoding=3, text=title))
     audio.add(TPE1(encoding=3, text=artist))
     audio.add(TYER(encoding=3, text=release_year))
@@ -109,13 +97,7 @@ def add_to_cmus(filename):
     os.system(f"cmus-remote \"{filename}\"")
     print(filename)
 
-def main():
-    parser = argparse.ArgumentParser(description='Convert ListenBrainz playlist to YouTube URLs.')
-    parser.add_argument('playlist_id', metavar='PLAYLIST_ID', type=str, help='ListenBrainz playlist ID')
-    args = parser.parse_args()
-
-    playlist_id = args.playlist_id
-    tracks = get_listenbrainz_playlist_tracks(playlist_id)
+def download_tracks(tracks):
     print('')
     youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=YOUTUBE_API_KEY)
     for t in tracks:
@@ -142,10 +124,21 @@ def main():
                         continue
             convert_to_mp3(mp4_filename, mp3_filename)
         if os.path.exists(mp3_filename):
-            tag_mp3(mp3_filename, t['artist'], t['title'], t['mbid'])
+            if 'mbid' in t and not 'release_year' in t:
+                t['release_year'] = get_release_year(t['mbid'])
+            tag_mp3(mp3_filename, t['artist'], t['title'], t['release_year'])
             new_path = move_file_to_target_folder(mp3_filename)
             if new_path is not None:
                 add_to_cmus(new_path)
+
+def main():
+    parser = argparse.ArgumentParser(description='Convert ListenBrainz playlist to YouTube URLs.')
+    parser.add_argument('playlist_id', metavar='PLAYLIST_ID', type=str, help='ListenBrainz playlist ID')
+    args = parser.parse_args()
+
+    playlist_id = args.playlist_id
+    tracks = get_listenbrainz_playlist_tracks(playlist_id)
+    download_tracks(tracks)
 
 if __name__ == "__main__":
     main()
