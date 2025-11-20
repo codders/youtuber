@@ -7,10 +7,10 @@ name = "pypi"
 google-api-python-client = "*"
 requests = "*"
 dotenv = "*"
-pytube2 = "*"
 python-ffmpeg = "*"
 mutagen = "*"
 spotifyscraper = "*"
+yt-dlp = "==2025.11.12"
 
 [dev-packages]
 
