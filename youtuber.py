@@ -43,6 +43,7 @@ def download_audio(url, target):
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'm4a',
         }],
+        'player_client': 'android_vr',
         'js_runtimes': { 'deno': { 'path': 'node_modules/deno/deno' } },
         'remote_components': [ 'ejs:github' ],
         'outtmpl': target

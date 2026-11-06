@@ -10,9 +10,12 @@ dotenv = "*"
 python-ffmpeg = "*"
 mutagen = "*"
 spotifyscraper = "*"
-yt-dlp = "==2025.11.12"
+yt-dlp = {git = "https://github.com/yt-dlp/yt-dlp.git"}
 
 [dev-packages]
 
 [requires]
 python_version = "3.12"
+
+[pipenv]
+allow_prereleases = true
